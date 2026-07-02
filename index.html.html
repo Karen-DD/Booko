@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Escolar Pastel + Firebase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#F8F7FA] font-sans min-h-screen pb-12 text-slate-700">
+
+    <!-- NAVBAR (Morado Pastel) -->
+    <nav class="bg-[#E8DEF8] text-[#4F378B] p-4 shadow-sm mb-8 border-b border-[#D0BCFF]">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center gap-2">✨ <span>📚</span> Sistema de Biblioteca Escolar</h1>
+            <button onclick="abrirModal()" class="bg-[#D0BCFF] hover:bg-[#E8DEF8] text-[#381E72] font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm border border-[#9A82DB] flex items-center gap-2">
+                📊 Panel de Control
+            </button>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL: FORMULARIOS -->
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl">
+        
+        <!-- FORMULARIO: GESTIÓN DE LIBROS -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DEF8] border-t-8 border-t-[#D0BCFF]">
+            <h2 class="text-xl font-bold mb-4 text-[#381E72]" id="titulo-form-libro">Registrar Libro</h2>
+            <form id="form-libro" class="space-y-4" onsubmit="guardarLibro(event)">
+                <input type="hidden" id="libro-id">
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Título del Libro</label>
+                    <input type="text" id="libro-titulo" required class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">ISBN</label>
+                    <input type="text" id="libro-isbn" required class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Autor</label>
+                    <input type="text" id="libro-autor" required class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Cantidad Disponible</label>
+                    <input type="number" id="libro-cantidad" min="0" required class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="w-full bg-[#D0BCFF] hover:bg-[#E8DEF8] text-[#381E72] p-2.5 rounded-xl font-semibold transition-colors border border-[#9A82DB]">Guardar Libro</button>
+                    <button type="button" onclick="resetFormLibro()" class="bg-[#F1EEF4] hover:bg-[#E6E1E9] text-slate-600 p-2.5 rounded-xl transition-colors">Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- FORMULARIO: GESTIÓN DE PRÉSTAMOS -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#E8DEF8] border-t-8 border-t-[#E8DEF8]">
+            <h2 class="text-xl font-bold mb-4 text-[#4F378B]" id="titulo-form-prestamo">Registrar Préstamo</h2>
+            <form id="form-prestamo" class="space-y-4" onsubmit="guardarPrestamo(event)">
+                <input type="hidden" id="prestamo-id">
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Seleccionar Libro</label>
+                    <select id="prestamo-libro" required class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Nombre del Estudiante</label>
+                    <input type="text" id="estudiante-nombre" required class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Documento de Identidad</label>
+                    <input type="text" id="estudiante-documento" required class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-500 mb-1">Correo Electrónico</label>
+                        <input type="email" id="estudiante-correo" required class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]" placeholder="ejemplo@correo.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-500 mb-1">Número de Celular</label>
+                        <input type="tel" id="estudiante-celular" required class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]" placeholder="3001234567">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Fecha de Préstamo</label>
+                    <input type="date" id="fecha-prestamo" required onchange="calcularFechaMaxima()" class="w-full p-2.5 bg-[#FAF9FC] border border-[#E8DEF8] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D0BCFF]">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-500 mb-1">Fecha Devolución Máxima (15 días)</label>
+                    <input type="date" id="fecha-maxima" readonly class="w-full p-2.5 border bg-[#F1EEF4] text-slate-400 rounded-xl cursor-not-allowed">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="w-full bg-[#E8DEF8] hover:bg-[#D0BCFF] text-[#381E72] p-2.5 rounded-xl font-semibold transition-colors border border-[#C6B3EC]">Confirmar Préstamo</button>
+                    <button type="button" onclick="resetFormPrestamo()" class="bg-[#F1EEF4] hover:bg-[#E6E1E9] text-slate-600 p-2.5 rounded-xl transition-colors">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= VENTANA MODAL (PANEL DE CONTROL PASTEL) ================= -->
+    <div id="modal-panel" class="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl h-[85vh] flex flex-col m-4 transform scale-95 transition-transform duration-300 border border-[#E8DEF8]" id="modal-content">
+            
+            <div class="p-4 bg-[#381E72] text-[#E8DEF8] rounded-t-2xl flex justify-between items-center">
+                <h3 class="text-xl font-bold flex items-center gap-2">📊 Panel de Control General</h3>
+                <button onclick="cerrarModal()" class="text-[#D0BCFF] hover:text-white text-3xl font-light px-2">&times;</button>
+            </div>
+
+            <div class="flex border-b bg-[#FAF9FC]">
+                <button onclick="cambiarPestaña('tab-reportes')" id="btn-tab-reportes" class="flex-1 py-3.5 font-semibold text-[#4F378B] border-b-2 border-b-[#4F378B] bg-white transition-all">📋 Resumen y Reportes</button>
+                <button onclick="cambiarPestaña('tab-inventario')" id="btn-tab-inventario" class="flex-1 py-3.5 font-semibold text-slate-400 hover:bg-[#FAF9FC] transition-all">📦 Inventario de Libros</button>
+                <button onclick="cambiarPestaña('tab-prestamos')" id="btn-tab-prestamos" class="flex-1 py-3.5 font-semibold text-slate-400 hover:bg-[#FAF9FC] transition-all">⏱️ Historial de Préstamos</button>
+            </div>
+
+            <div class="p-6 flex-1 overflow-y-auto bg-[#FAF9FC]">
+                <!-- SECCIÓN 1: RESUMEN Y REPORTES -->
+                <div id="tab-reportes" class="tab-content space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-6 bg-white border border-[#E8DEF8] rounded-2xl text-center shadow-sm">
+                            <span class="block text-xs font-bold text-[#4F378B] uppercase tracking-wider mb-1">Total Libros Disponibles</span>
+                            <span id="total-disponibles" class="text-4xl font-extrabold text-[#381E72]">0</span>
+                        </div>
+                        <div class="p-6 bg-white border border-[#E8DEF8] rounded-2xl text-center shadow-sm">
+                            <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Préstamos Activos</span>
+                            <span id="total-activos" class="text-4xl font-extrabold text-slate-700">0</span>
+                        </div>
+                        <div class="p-6 bg-[#FFDAD7] border border-[#FFB4AB] rounded-2xl text-center shadow-sm">
+                            <span class="block text-xs font-bold text-[#410002] uppercase tracking-wider mb-1">Libros Atrasados</span>
+                            <span id="total-atrasados" class="text-4xl font-extrabold text-[#410002]">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: INVENTARIO DE LIBROS -->
+                <div id="tab-inventario" class="tab-content hidden">
+                    <div class="overflow-x-auto border border-[#E8DEF8] rounded-xl bg-white shadow-sm">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-[#E8DEF8] text-[#381E72] border-b border-[#D0BCFF]">
+                                    <th class="p-3.5 font-semibold">Título</th>
+                                    <th class="p-3.5 font-semibold">ISBN</th>
+                                    <th class="p-3.5 font-semibold">Autor</th>
+                                    <th class="p-3.5 font-semibold text-center">Disponibles</th>
+                                    <th class="p-3.5 font-semibold text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-libros" class="divide-y divide-[#E8DEF8]"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: HISTORIAL DE PRÉSTAMOS -->
+                <div id="tab-prestamos" class="tab-content hidden">
+                    <div class="overflow-x-auto border border-[#E8DEF8] rounded-xl bg-white shadow-sm">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-[#E8DEF8] text-[#381E72] border-b border-[#D0BCFF]">
+                                    <th class="p-3.5 font-semibold">Estudiante / Contacto</th>
+                                    <th class="p-3.5 font-semibold">Libro Prestado</th>
+                                    <th class="p-3.5 font-semibold text-center">F. Préstamo</th>
+                                    <th class="p-3.5 font-semibold text-center">F. Devolución Máx</th>
+                                    <th class="p-3.5 font-semibold text-center">Estado</th>
+                                    <th class="p-3.5 font-semibold text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-prestamos" class="divide-y divide-[#E8DEF8]"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-white rounded-b-2xl border-t border-[#E8DEF8] flex justify-end">
+                <button onclick="cerrarModal()" class="bg-[#F1EEF4] hover:bg-[#E6E1E9] text-slate-700 font-semibold px-5 py-2 rounded-xl transition-colors">Cerrar Panel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= BASE DE DATOS (FIREBASE DE TU PROYECTO) ================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA9UQsVBHgpgDRxjIwxc_Xa3PpZkpND4ng",
+            authDomain: "booky-2ebb8.firebaseapp.com",
+            projectId: "booky-2ebb8",
+            storageBucket: "booky-2ebb8.firebasestorage.app",
+            messagingSenderId: "965065922606",
+            appId: "1:965065922606:web:4f51b45837a990b0cda7bf",
+            measurementId: "G-7FXY8CQG0T"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let libros = [];
+        let prestamos = [];
+
+        onSnapshot(collection(db, "libros"), (snapshot) => {
+            libros = [];
+            snapshot.forEach((doc) => { libros.push({ id: doc.id, ...doc.data() }); });
+            actualizarTodo();
+        });
+
+        onSnapshot(collection(db, "prestamos"), (snapshot) => {
+            prestamos = [];
+            snapshot.forEach((doc) => { prestamos.push({ id: doc.id, ...doc.data() }); });
+            actualizarTodo();
+        });
+
+        window.guardarLibro = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('libro-id').value;
+            const datosLibro = {
+                titulo: document.getElementById('libro-titulo').value,
+                isbn: document.getElementById('libro-isbn').value,
+                autor: document.getElementById('libro-autor').value,
+                cantidad: parseInt(document.getElementById('libro-cantidad').value)
+            };
+            try {
+                if (id === "") { await addDoc(collection(db, "libros"), datosLibro); } 
+                else { await updateDoc(doc(db, "libros", id), datosLibro); }
+                resetFormLibro();
+            } catch (error) { console.error(error); }
+        };
+
+        window.eliminarLibro = async (id) => {
+            if(confirm("¿Seguro que deseas eliminar este libro?")) {
+                try { await deleteDoc(doc(db, "libros", id)); } catch (e) { console.error(e); }
+            }
+        };
+
+        window.guardarPrestamo = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('prestamo-id').value;
+            const libroTitulo = document.getElementById('prestamo-libro').value;
+
+            if(!libroTitulo) return;
+            const libroAsociado = libros.find(l => l.titulo === libroTitulo);
+
+            if (id === "" && (!libroAsociado || libroAsociado.cantidad <= 0)) {
+                alert("⚠️ No quedan unidades disponibles de este libro.");
+                return;
+            }
+
+            const datosPrestamo = {
+                estudiante: document.getElementById('estudiante-nombre').value,
+                documento: document.getElementById('estudiante-documento').value,
+                correo: document.getElementById('estudiante-correo').value,
+                celular: document.getElementById('estudiante-celular').value,
+                libro: libroTitulo,
+                fechaPrestamo: document.getElementById('fecha-prestamo').value,
+                fechaMaxima: document.getElementById('fecha-maxima').value
+            };
+
+            try {
+                if (id === "") {
+                    await updateDoc(doc(db, "libros", libroAsociado.id), { cantidad: libroAsociado.cantidad - 1 });
+                    await addDoc(collection(db, "prestamos"), datosPrestamo);
+                } else {
+                    await updateDoc(doc(db, "prestamos", id), datosPrestamo);
+                }
+                resetFormPrestamo();
+            } catch (error) { console.error(error); }
+        };
+
+        window.eliminarPrestamo = async (id) => {
+            if(confirm("¿Dar por devuelto este préstamo?")) {
+                const prestamo = prestamos.find(p => p.id === id);
+                const libroAsociado = libros.find(l => l.titulo === prestamo.libro);
+                try {
+                    if(libroAsociado) { await updateDoc(doc(db, "libros", libroAsociado.id), { cantidad: libroAsociado.cantidad + 1 }); }
+                    await deleteDoc(doc(db, "prestamos", id));
+                } catch (e) { console.error(e); }
+            }
+        };
+
+        window.editarLibro = (id) => {
+            const libro = libros.find(l => l.id === id);
+            document.getElementById('libro-id').value = libro.id;
+            document.getElementById('libro-titulo').value = libro.titulo;
+            document.getElementById('libro-isbn').value = libro.isbn;
+            document.getElementById('libro-autor').value = libro.autor;
+            document.getElementById('libro-cantidad').value = libro.cantidad;
+            document.getElementById('titulo-form-libro').innerText = "📝 Editar Libro";
+            cerrarModal();
+        };
+
+        window.editarPrestamo = (id) => {
+            const p = prestamos.find(p => p.id === id);
+            document.getElementById('prestamo-id').value = p.id;
+            document.getElementById('prestamo-libro').value = p.libro;
+            document.getElementById('estudiante-nombre').value = p.estudiante;
+            document.getElementById('estudiante-documento').value = p.documento;
+            document.getElementById('estudiante-correo').value = p.correo || "";
+            document.getElementById('estudiante-celular').value = p.celular || "";
+            document.getElementById('fecha-prestamo').value = p.fechaPrestamo;
+            document.getElementById('fecha-maxima').value = p.fechaMaxima;
+            document.getElementById('titulo-form-prestamo').innerText = "📝 Editar Préstamo";
+            cerrarModal();
+        };
+
+        function actualizarTodo() {
+            renderLibros();
+            renderPrestamos();
+            actualizarSelectLibros();
+            calcularReportes();
+        }
+
+        function renderLibros() {
+            const tbody = document.getElementById('tabla-libros');
+            tbody.innerHTML = libros.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay libros registrados.</td></tr>` : '';
+            libros.forEach((libro) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-[#FAF9FC] transition-colors">
+                        <td class="p-3 font-semibold text-slate-800">${libro.titulo}</td>
+                        <td class="p-3 text-sm text-slate-500">${libro.isbn}</td>
+                        <td class="p-3 text-sm text-slate-500">${libro.autor}</td>
+                        <td class="p-3 text-center font-bold text-lg ${libro.cantidad > 0 ? 'text-emerald-600':'text-rose-500'}">${libro.cantidad}</td>
+                        <td class="p-3 text-center space-x-3">
+                            <button onclick="editarLibro('${libro.id}')" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm">Editar</button>
+                            <button onclick="eliminarLibro('${libro.id}')" class="text-rose-600 hover:text-rose-800 font-medium text-sm">Eliminar</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function renderPrestamos() {
+            const tbody = document.getElementById('tabla-prestamos');
+            tbody.innerHTML = prestamos.length === 0 ? `<tr><td colspan="6" class="p-4 text-center text-gray-400">No hay préstamos registrados.</td></tr>` : '';
+            const hoy = new Date().toISOString().split('T')[0];
+
+            prestamos.forEach((p) => {
+                const esAtrasado = hoy > p.fechaMaxima;
+                const badgeEstado = esAtrasado 
+                    ? `<span class="bg-[#FFDAD7] text-[#410002] text-xs px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider">Atrasado</span>`
+                    : `<span class="bg-[#E6F4EA] text-[#137333] text-xs px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider">Activo</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-[#FAF9FC] transition-colors">
+                        <td class="p-3">
+                            <div class="font-semibold text-slate-800">${p.estudiante}</div>
+                            <div class="text-xs text-slate-400 font-medium">Doc: ${p.documento}</div>
+                            <div class="text-xs text-indigo-500 mt-1 font-medium">📧 ${p.correo || '---'}</div>
+                            <div class="text-xs text-slate-500 font-medium">📞 ${p.celular || '---'}</div>
+                        </td>
+                        <td class="p-3 text-slate-700 font-medium">${p.libro}</td>
+                        <td class="p-3 text-center text-sm text-slate-500">${p.fechaPrestamo}</td>
+                        <td class="p-3 text-center text-sm font-semibold text-slate-700">${p.fechaMaxima}</td>
+                        <td class="p-3 text-center">${badgeEstado}</td>
+                        <td class="p-3 text-center space-x-3">
+                            <button onclick="editarPrestamo('${p.id}')" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm">Editar</button>
+                            <button onclick="eliminarPrestamo('${p.id}')" class="text-emerald-600 hover:text-emerald-700 font-medium text-sm">Devolver</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function actualizarSelectLibros() {
+            const select = document.getElementById('prestamo-libro');
+            const valorActual = select.value;
+            select.innerHTML = '<option value="" disabled selected>Seleccione un libro...</option>';
+            libros.forEach(libro => { select.innerHTML += `<option value="${libro.titulo}">${libro.titulo} (Dispo: ${libro.cantidad})</option>`; });
+            if(valorActual) select.value = valorActual;
+        }
+
+        function calcularReportes() {
+            const totalDisponibles = libros.reduce((sum, l) => sum + l.cantidad, 0);
+            const totalActivos = prestamos.length;
+            const hoy = new Date().toISOString().split('T')[0];
+            const totalAtrasados = prestamos.filter(p => hoy > p.fechaMaxima).length;
+
+            document.getElementById('total-disponibles').innerText = totalDisponibles;
+            document.getElementById('total-activos').innerText = totalActivos;
+            document.getElementById('total-atrasados').innerText = totalAtrasados;
+        }
+    </script>
+
+    <!-- UI SCRIPTS -->
+    <script>
+        document.getElementById('fecha-prestamo').valueAsDate = new Date();
+        
+        function calcularFechaMaxima() {
+            const fechaPrestamoVal = document.getElementById('fecha-prestamo').value;
+            if (fechaPrestamoVal) {
+                const fecha = new Date(fechaPrestamoVal + 'T00:00:00');
+                fecha.setDate(fecha.getDate() + 15);
+                document.getElementById('fecha-maxima').value = fecha.toISOString().split('T')[0];
+            }
+        }
+        calcularFechaMaxima();
+
+        function abrirModal() {
+            const modal = document.getElementById('modal-panel');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('modal-panel');
+            const content = document.getElementById('modal-content');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function cambiarPestaña(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            ['tab-reportes', 'tab-inventario', 'tab-prestamos'].forEach(id => {
+                document.getElementById(`btn-${id}`).className = "flex-1 py-3.5 font-semibold text-slate-400 hover:bg-[#FAF9FC] transition-all";
+            });
+            document.getElementById(`btn-${tabId}`).className = "flex-1 py-3.5 font-semibold text-[#4F378B] border-b-2 border-b-[#4F378B] bg-white transition-all";
+        }
+
+        function resetFormLibro() {
+            document.getElementById('form-libro').reset();
+            document.getElementById('libro-id').value = "";
+            document.getElementById('titulo-form-libro').innerText = "Registrar Libro";
+        }
+
+        function resetFormPrestamo() {
+            document.getElementById('form-prestamo').reset();
+            document.getElementById('prestamo-id').value = "";
+            document.getElementById('titulo-form-prestamo').innerText = "Registrar Préstamo";
+            document.getElementById('fecha-prestamo').valueAsDate = new Date();
+            calcularFechaMaxima();
+        }
+    </script>
+</body>
+</html>
